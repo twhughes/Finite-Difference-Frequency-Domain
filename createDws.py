@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.sparse as sp
+import matplotlib.pylab as plt
 
 from time import time
 
@@ -37,8 +38,7 @@ def createDws(w, s, dL, N):
     if (w == 'x'):
         # Construct a block of the derivative matrix in the x-direction
         tmp = sp.eye(Nx, format='csr')
-        block_x = -tmp + sp.hstack((tmp[:,1:],tmp[:,:1]),format='csr').T 
-
+        block_x = -tmp + sp.hstack((tmp[:,1:],tmp[:,:1]),format='csr').T
         # Create Dws = Dxs by stacking up the blocks
         for n in range(Ny):
             Dws[n*Nx : (n+1)*Nx, n*Nx: (n+1)*Nx] = 1/dw * block_x 

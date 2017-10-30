@@ -62,9 +62,9 @@ def solveFDFD(pol, L0, wvlen, xrange, yrange, eps_r, SRC, Npml, timing=False):
     eps_y = bwdmean_w(eps0 * eps_r, 'y') 
     eps_z = eps0 * eps_r 
 
-    vector_eps_x = np.reshape(eps_x, (M, 1)) 
-    vector_eps_y = np.reshape(eps_y, (M, 1))
-    vector_eps_z = np.reshape(eps_z, (M, 1))
+    vector_eps_x = np.reshape(eps_x.T, (M, 1)) 
+    vector_eps_y = np.reshape(eps_y.T, (M, 1))
+    vector_eps_z = np.reshape(eps_z.T, (M, 1))
 
     T_eps_x = sp.spdiags(vector_eps_x.T, 0, M, M) 
     T_eps_y = sp.spdiags(vector_eps_y.T, 0, M, M) 
@@ -84,26 +84,25 @@ def solveFDFD(pol, L0, wvlen, xrange, yrange, eps_r, SRC, Npml, timing=False):
     if timing: t = time()    
     if (pol == 'TE'):
         ## Construct A matrix and b vector
-        A = np.dot(np.dot(Dxf,1./T_eps_x), Dxb) + np.dot(np.dot(Dyf,(1./T_eps_y)),Dyb) + (omega**2)*np.dot(mu0*sp.eye(M))
-        mz = np.reshape(SRC, M, 1) 
+        A = Dxf * 1./T_eps_x * Dxb + Dyf * 1./T_eps_y * Dyb + (omega**2) * mu0 * sp.eye(M)
+        mz = np.reshape(SRC, (M, 1))
         b = 1j*omega*mz 
         
         ## Solve the system of equations
         hz = spl.spsolve(A,b)
         
         ## Find electric fields
-        ex = -1j/omega * np.dot(np.dot(1./T_eps_y, Dyb),hz) 
-        ey = 1j/omega * np.dot(np.dot(1./T_eps_x, Dxb), hz)        
+        ex = -1j/omega * 1./T_eps_y * Dyb * hz
+        ey =  1j/omega * 1./T_eps_x * Dxb * hz       
         
         ## Return field matrices
-        Hz = np.reshape(hz, (N[1],N[0]))
-        Ex = np.reshape(ex, (N[1],N[0]))
-        Ey = np.reshape(ey, (N[1],N[0]))
+        Hz = np.reshape(hz, (Nx,Ny))
+        Ex = np.reshape(ex, (Nx,Ny))
+        Ey = np.reshape(ey, (Nx,Ny))
 
     elif (pol == 'TM'):
         ## Construct A matrix and b vector
-        #A = np.dot(np.dot(Dxb, 1./mu0), Dxf) + np.dot(np.dot(Dyb, 1./mu0), Dyf) + (omega**2)*T_eps_z 
-        A = Dxb * 1./mu0 * Dxf + Dyb * 1./mu0 * Dyf + (omega**2)*T_eps_z 
+        A = Dxb * 1./mu0 * Dxf + Dyb * 1./mu0 * Dyf + (omega**2)*T_eps_z
 
         jz = np.reshape(SRC, M, 1) 
         b = 1j * omega * jz 
@@ -116,9 +115,9 @@ def solveFDFD(pol, L0, wvlen, xrange, yrange, eps_r, SRC, Npml, timing=False):
         hy =  1/(1j*omega) * 1./mu0 * Dxb * ez
 
         ## Return field matrices
-        Ez = np.reshape(ez, (N[1],N[0]))
-        Hx = np.reshape(hx, (N[1],N[0]))
-        Hy = np.reshape(hy, (N[1],N[0]))
+        Ez = np.reshape(ez, (Ny,Nx))
+        Hx = np.reshape(hx, (Ny,Nx))
+        Hy = np.reshape(hy, (Ny,Nx))
         
         
     else:
