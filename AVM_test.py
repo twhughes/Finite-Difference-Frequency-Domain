@@ -29,8 +29,12 @@ SRC_aj[src_pos_og,ny] = 1
 Npml = [npml,npml,npml,npml]
 
 (_, _, Ez_og, Hx_og, Hy_og, _, _) = solveFDFD(pol, L0, wvlen, xrange, yrange, eps_r, SRC_og, Npml, timing=timing)
+(_, _, Ez_aj, Hx_aj, Hy_aj, _, _) = solveFDFD(pol, L0, wvlen, xrange, yrange, eps_r, SRC_aj, Npml, timing=timing)
 
 plt.imshow(np.real(Ez_og))
+plt.show()
+
+plt.imshow(np.real(Ez_aj))
 plt.show()
 
 #plt.imshow(SRC)
